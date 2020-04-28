@@ -7,19 +7,23 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 public class CreateIssue {
 
-	public void createIssue(String summary, String description) throws IOException {
+	public void createIssue(String summary, String serverIssueKey) throws IOException {
 
 		String createIssueUrl = "https://crgjiranew.atlassian.net/rest/api/2/issue";
-		String createIssueJsonInfo = " { \"fields\": {\n        \"project\": {\n            \"key\": \"10001\"\n        },\n        \"summary\": \""
+		String createIssueJsonInfo = " { \"fields\": {\n        \"project\": {\n            \"id\": \"10001\"\n        },\n        \"summary\": \""
 				+ summary
 				+ "\",\n        \"issuetype\": {\n            \"id\": \"10002\"\n        },\n        \"assignee\": {\n            \"name\": \"vinodh A\"\n        },\n       \"description\" : \""
-				+ description + "\"\n}}";
+				+ serverIssueKey + "\"\n}}";
+		
 		Authentication authentication = new Authentication();
 		String userName = "vinodh@crgroup.co.in";
 		String password="IZux1kJHeUjTvQx0ifIfF5C9";
+		System.out.println("summary "+summary);
+		System.out.println("desription "+serverIssueKey);
 
 		HttpURLConnection createIssueConnection = authentication.authenticate(createIssueUrl, userName, password);
 		createIssueConnection.setRequestMethod("POST");
@@ -33,6 +37,12 @@ public class CreateIssue {
 		String jsonResponse = IOUtils.toString(inputStream, "UTF-8");
 
 		System.out.println(jsonResponse);
+		JSONObject inwardIssueDetails = new JSONObject(jsonResponse);
+		String inwardIssueKey = 
+		inwardIssueDetails.getString("key");
+		System.out.println(inwardIssueKey);
+		LinkIssue linkIssue = new LinkIssue();
+		linkIssue.linkIssue(summary,inwardIssueKey,serverIssueKey);
 
 	}
 
